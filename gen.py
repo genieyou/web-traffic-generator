@@ -9,7 +9,7 @@
 #20170714 shyft ADDED python 2.7 and 3.x compatibility and generic config
 from __future__ import print_function
 import requests, re, time, random
-import sys, socket, subprocess, pdb
+import sys, socket, subprocess, re, pdb
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -21,14 +21,20 @@ if args.source:
 else:
     sourceIP = socket.gethostbyname(socket.gethostname())
 
+ipregex = re.compile('^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
+
 # monkeypatch socket so we can spoof the source IP
 true_gethostbyname = socket.gethostbyname
 def bound_gethostbyname(host):
     try:
-        ipResult = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')[0]
+        ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
     except CalledProcessError:
         pass
-    return ipResult
+
+    for ipResult in ipResults:
+        if ipregex.match(ipResult):
+            return(ipResult)
+
 socket.gethostbyname = bound_gethostbyname
 
 true_getaddrinfo = socket.getaddrinfo
@@ -41,7 +47,9 @@ def bound_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
         pass
 
     for ipResult in ipResults:
-        reslist.append((socket.AF_INET, socket.SOCK_STREAM, 0, '', (ipResult, port)))
+        if ipregex.match(ipResult):
+            reslist.append((socket.AF_INET, socket.SOCK_STREAM, 0, '', (ipResult, port)))
+
     return reslist
 socket.getaddrinfo = bound_getaddrinfo
 
@@ -229,7 +237,6 @@ def browse(urls):
                 config.blacklist.insert(0,clickLink)
                 depth = config.clickDepth
             
-        
         currURL+=1 # increase rootURL iteration
     if config.debug:
         print("Done.")
