@@ -247,6 +247,8 @@ goodRequests = 0
 badRequests = 0
 
 while True:
+    print('Traffic generator started %s clicks deep (delay %s-%s sec) from list of %s root URLs' % (config.clickDepth, config.minWait, config.maxWait, len(config.rootURLs)))
+
     # print("Traffic generator started...")
     # print("----------------------------")
     # print("https://github.com/ecapuano/web-traffic-generator")
@@ -255,5 +257,5 @@ while True:
     # print("waiting between %s and %s seconds between requests. " % (config.minWait,config.maxWait))
     # print("")
     # print("This script will run indefinitely. Ctrl+C to stop.")
-    # browse(config.rootURLs)
-    print('Traffic generator started %s clicks deep (delay %s-%s sec) from list of %s root URLs' % (config.clickDepth, config.minWait, config.maxWait, len(config.rootURLs)))
+    browse(config.rootURLs)
+    
