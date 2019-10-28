@@ -256,4 +256,4 @@ while True:
     # print("")
     # print("This script will run indefinitely. Ctrl+C to stop.")
     # browse(config.rootURLs)
-    print('Traffic generator started %s clicks deep (delay %s-%s sec) from list of %s root URLs' % (config.clickDepth, config.minWait, config.maxWait, len(config.rootURLs))
+    print('Traffic generator started %s clicks deep (delay %s-%s sec) from list of %s root URLs' % (config.clickDepth, config.minWait, config.maxWait, len(config.rootURLs)))
