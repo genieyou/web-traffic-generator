@@ -9,6 +9,7 @@
 #20170714 shyft ADDED python 2.7 and 3.x compatibility and generic config
 from __future__ import print_function
 import requests, re, time, random
+import distutils.spawn
 import sys, socket, subprocess, re, pdb
 
 import argparse
@@ -17,6 +18,10 @@ parser.add_argument('-s', '--source')
 args = parser.parse_args()
 
 if args.source:
+    if not distutils.spawn('dig'):
+        print('ERROR! The "dig" binary is not present, which is needed for the "-s" option.  Exiting.')
+        sys.exit(1)
+
     ipregex = re.compile('^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
 
     # monkeypatch socket so we can spoof the source IP
