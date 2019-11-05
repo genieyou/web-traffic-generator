@@ -17,51 +17,47 @@ parser.add_argument('-s', '--source')
 args = parser.parse_args()
 
 if args.source:
-    sourceIP = args.source
-else:
-    sourceIP = socket.gethostbyname(socket.gethostname())
+    ipregex = re.compile('^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
 
-ipregex = re.compile('^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
+    # monkeypatch socket so we can spoof the source IP
+    true_gethostbyname = socket.gethostbyname
+    def bound_gethostbyname(host):
+        try:
+            ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
+        except CalledProcessError:
+            pass
 
-# monkeypatch socket so we can spoof the source IP
-true_gethostbyname = socket.gethostbyname
-def bound_gethostbyname(host):
-    try:
-        ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
-    except CalledProcessError:
-        pass
+        for ipResult in ipResults:
+            if ipregex.match(ipResult):
+                return(ipResult)
 
-    for ipResult in ipResults:
-        if ipregex.match(ipResult):
-            return(ipResult)
+    socket.gethostbyname = bound_gethostbyname
 
-socket.gethostbyname = bound_gethostbyname
+    true_getaddrinfo = socket.getaddrinfo
+    def bound_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+        reslist = []
 
-true_getaddrinfo = socket.getaddrinfo
-def bound_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
-    reslist = []
+        try:
+            ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
+        except CalledProcessError:
+            pass
 
-    try:
-        ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
-    except CalledProcessError:
-        pass
+        for ipResult in ipResults:
+            if ipregex.match(ipResult):
+                reslist.append((socket.AF_INET, socket.SOCK_STREAM, 0, '', (ipResult, port)))
 
-    for ipResult in ipResults:
-        if ipregex.match(ipResult):
-            reslist.append((socket.AF_INET, socket.SOCK_STREAM, 0, '', (ipResult, port)))
+        return reslist
+    socket.getaddrinfo = bound_getaddrinfo
 
-    return reslist
-socket.getaddrinfo = bound_getaddrinfo
+    true_socket = socket.socket
+    def bound_socket(*a, **k):
+        sock = true_socket(*a, **k)
+        sock.bind((sourceIP, 0))
+        return sock
+    socket.socket = bound_socket
 
-true_socket = socket.socket
-def bound_socket(*a, **k):
-    sock = true_socket(*a, **k)
-    sock.bind((sourceIP, 0))
-    return sock
-socket.socket = bound_socket
-
-sys.modules['socket'] = socket
-# end the monkeypatching madness
+    sys.modules['socket'] = socket
+    # end the monkeypatching madness
 
 try:
     import config
