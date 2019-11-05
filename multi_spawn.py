@@ -8,7 +8,7 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--interface', dest='interface', help='Top-level interface to use', default='enp0s3')
-parser.add_argument('-d', '--duration', dest='duration', help='Total duration to run (seconds)', default=3600, type=int)
+# parser.add_argument('-d', '--duration', dest='duration', help='Total duration to run (seconds)', default=3600, type=int)
 parser.add_argument('-c', '--clients', dest='clients', help='Number of clients to spawn', default=10, type=int)
 parser.add_argument('-n', '--dry-run', dest='dry_run', action='store_true', default=False)
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False)
