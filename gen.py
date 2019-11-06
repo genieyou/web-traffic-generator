@@ -28,7 +28,7 @@ if args.source:
     true_gethostbyname = socket.gethostbyname
     def bound_gethostbyname(host):
         try:
-            ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
+            ipResults = subprocess.check_output(['dig', '+short', '-b', args.source, host]).strip().split('\n')
         except CalledProcessError:
             pass
 
@@ -43,7 +43,7 @@ if args.source:
         reslist = []
 
         try:
-            ipResults = subprocess.check_output(['dig', '+short', '-b', sourceIP, host]).strip().split('\n')
+            ipResults = subprocess.check_output(['dig', '+short', '-b', args.source, host]).strip().split('\n')
         except CalledProcessError:
             pass
 
@@ -57,7 +57,7 @@ if args.source:
     true_socket = socket.socket
     def bound_socket(*a, **k):
         sock = true_socket(*a, **k)
-        sock.bind((sourceIP, 0))
+        sock.bind((args.source, 0))
         return sock
     socket.socket = bound_socket
 
