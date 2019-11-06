@@ -18,7 +18,7 @@ parser.add_argument('-s', '--source')
 args = parser.parse_args()
 
 if args.source:
-    if not distutils.spawn('dig'):
+    if not spawn.find_executable('dig'):
         print('ERROR! The "dig" binary is not present, which is needed for the "-s" option.  Exiting.')
         sys.exit(1)
 
