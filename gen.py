@@ -9,7 +9,7 @@
 #20170714 shyft ADDED python 2.7 and 3.x compatibility and generic config
 from __future__ import print_function
 import requests, re, time, random
-import distutils.spawn
+from distutils import spawn
 import sys, socket, subprocess, re, pdb
 
 import argparse
