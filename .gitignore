@@ -1,6 +1,7 @@
 # web-traffic-generator
 # user config file
 config.py
+config.pyc
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
